@@ -113,12 +113,12 @@
 
         const wpiRequestEncoded = encodeURIComponent(JSON.stringify(requestJson));
 
-        const deeplinkUrl = `wltaponmobile://wpi.worldline?` +
+        const deeplinkUrl = `wltaponmobile://WLAPITeam01?` +
             `WPI_SERVICE_TYPE=${operationType}&` +
             `WPI_REQUEST=${wpiRequestEncoded}&` +
             `WPI_SERVICE_VERSION=2.1&` +
             `WPI_SERVICE_SENDER=https%3A%2F%2Fstoreapptom.github.io%2FStoreApp%2FstoreApp.html&` +
-            `key=YOUR_UNIQUE_KEY_HERE`;  // Replace with actual key
+            `key=7WS4MERHR1Y`;  // Replace with actual key
         console.log(deeplinkUrl);
 
         window.location.href = deeplinkUrl;
