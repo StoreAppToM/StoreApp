@@ -99,32 +99,33 @@
     const responseDisplay = document.getElementById("responseDisplay");
 
     if (data) {
+    const responseDisplay = document.getElementById("responseDisplay");
+    responseDisplay.innerText = `Success: ${decodeURIComponent(data)}`;
 
-         responseDisplay.innerText = Success: ${decodeURIComponent(data)};
-        // Décodage des données reçues
-        const decodedData = JSON.parse(data);
+    // Décodage des données reçues
+    const decodedData = JSON.parse(data);
 
-        // Vérification si 'paymentSolutionReference' est présent dans les données
-        const paymentSolutionReference = decodedData.paymentSolutionReference;
+    // Vérification si 'paymentSolutionReference' est présent dans les données
+    const paymentSolutionReference = decodedData.paymentSolutionReference;
 
-        if (paymentSolutionReference) {
-            // Ajout de la référence de paiement à la liste si elle n'existe pas déjà
-            if (!paymentReferences.includes(paymentSolutionReference)) {
-                paymentReferences.push(paymentSolutionReference);
-            }
+    if (paymentSolutionReference) {
+        // Ajout de la référence de paiement à la liste si elle n'existe pas déjà
+        if (!paymentReferences.includes(paymentSolutionReference)) {
+            paymentReferences.push(paymentSolutionReference);
+        }
 
-            // Mise à jour de la liste des références de paiement
-            populatePaymentReferences();
+        // Mise à jour de la liste des références de paiement
+        populatePaymentReferences();
 
-           
-        } 
-    } else if (error) {
-        responseDisplay.innerText = `Error: ${decodeURIComponent(error)}`;
-    } else {
-        responseDisplay.innerText = "No response received.";
+        } else if (error) {
+            const responseDisplay = document.getElementById("responseDisplay");
+            responseDisplay.innerText = `Error: ${decodeURIComponent(error)}`;
+        } else {
+            const responseDisplay = document.getElementById("responseDisplay");
+            responseDisplay.innerText = "No response received.";
+        }
     }
 }
-
     function startTransaction() {
         const operationType = document.getElementById("operationType").value;
         const amount = document.getElementById("amount").value;
