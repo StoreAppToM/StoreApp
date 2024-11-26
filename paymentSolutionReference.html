@@ -1,0 +1,198 @@
+
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Integration</title>
+    <link rel="manifest" href="/StoreApp/manifest.json">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 16px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        label, select, input, button, .response {
+            width: 100%;
+            margin-bottom: 16px;
+            padding: 8px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .response {
+            font-weight: bold;
+            padding: 12px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body onload="handleResponse()">
+
+<div class="container">
+    <h1>Payment Integration</h1>
+
+    <label for="operationType">Select Operation:</label>
+    <select id="operationType" onchange="togglePaymentReference()">
+        <option value="WPI_SVC_PAYMENT">Debit</option>
+        <option value="WPI_SVC_REFUND">Refund</option>
+        <option value="WPI_SVC_CANCEL_PAYMENT">Cancellation</option>
+    </select>
+
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" placeholder="Enter amount" required>
+
+    <label for="transactionReference">Transaction Reference:</label>
+    <input type="text" id="transactionReference" placeholder="Enter transaction reference" required>
+
+    <label for="paymentReference" style="display: none;">Payment Solution Reference:</label>
+    <select id="paymentReference" style="display: none;"></select>
+
+    <button onclick="startTransaction()">Send</button>
+
+    <div id="responseDisplay" class="response">Response will be displayed here</div>
+</div>
+
+<script>
+    let paymentReferences = []; // Liste des références de paiement récupérées
+
+    function togglePaymentReference() {
+        const operationType = document.getElementById("operationType").value;
+        const paymentReferenceField = document.getElementById("paymentReference");
+        const paymentReferenceLabel = document.querySelector("label[for='paymentReference']");
+
+        if (operationType === "WPI_SVC_REFUND" || operationType === "WPI_SVC_CANCEL_PAYMENT") {
+            paymentReferenceField.style.display = "block";
+            paymentReferenceLabel.style.display = "block";
+            populatePaymentReferences();
+        } else {
+            paymentReferenceField.style.display = "none";
+            paymentReferenceLabel.style.display = "none";
+        }
+    }
+
+    // Fonction pour remplir la liste déroulante des références de paiement
+    function populatePaymentReferences() {
+        const paymentReferenceField = document.getElementById("paymentReference");
+        paymentReferenceField.innerHTML = ''; // Réinitialise la liste
+
+        paymentReferences.forEach(reference => {
+            const option = document.createElement("option");
+            option.value = reference;
+            option.textContent = reference;
+            paymentReferenceField.appendChild(option);
+        });
+    }
+
+    // Cette fonction simule la récupération de la réponse avec la référence de paiement
+    function handleResponse() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const data = urlParams.get('data');
+    const error = urlParams.get('error');
+
+    const responseDisplay = document.getElementById("responseDisplay");
+
+    if (data) {
+    const responseDisplay = document.getElementById("responseDisplay");
+    responseDisplay.innerText = `Success: ${decodeURIComponent(data)}`;
+
+    // Décodage des données reçues
+    const decodedData = JSON.parse(data);
+
+    // Vérification si 'paymentSolutionReference' est présent dans les données
+    const paymentSolutionReference = decodedData.paymentSolutionReference;
+
+    if (paymentSolutionReference) {
+        // Ajout de la référence de paiement à la liste si elle n'existe pas déjà
+        if (!paymentReferences.includes(paymentSolutionReference)) {
+            paymentReferences.push(paymentSolutionReference);
+        }
+
+        // Mise à jour de la liste des références de paiement
+        populatePaymentReferences();
+
+        } else if (error) {
+            const responseDisplay = document.getElementById("responseDisplay");
+            responseDisplay.innerText = `Error: ${decodeURIComponent(error)}`;
+        } else {
+            const responseDisplay = document.getElementById("responseDisplay");
+            responseDisplay.innerText = "No response received.";
+        }
+    }
+}
+    function startTransaction() {
+        const operationType = document.getElementById("operationType").value;
+        const amount = document.getElementById("amount").value;
+        const transactionReference = document.getElementById("transactionReference").value;
+        const paymentReference = (operationType === "WPI_SVC_REFUND" || operationType === "WPI_SVC_CANCEL_PAYMENT") 
+            ? document.getElementById("paymentReference").value : "";
+
+        let requestJson;
+
+        switch (operationType) {
+            case "WPI_SVC_PAYMENT":
+                requestJson = {
+                    currency: "EUR",
+                    requestedAmount: parseInt(amount, 10),
+                    reference: transactionReference
+                };
+                break;
+
+            case "WPI_SVC_REFUND":
+                requestJson = {
+                    currency: "EUR",
+                    requestedAmount: parseInt(amount, 10),
+                    paymentSolutionReference: paymentReference,
+                    reference: transactionReference
+                };
+                break;
+
+            case "WPI_SVC_CANCEL_PAYMENT":
+                requestJson = {
+                    paymentSolutionReference: paymentReference,
+                    reference: transactionReference
+                };
+                break;
+
+            default:
+                console.error("Invalid service type");
+                return;
+        }
+
+        const wpiRequestEncoded = encodeURIComponent(JSON.stringify(requestJson));
+
+        const deeplinkUrl = `wltaponmobile://WLAPITeam01?` +
+            `WPI_SERVICE_TYPE=${operationType}&` +
+            `WPI_REQUEST=${wpiRequestEncoded}&` +
+            `WPI_SERVICE_VERSION=2.1&` +
+            `WPI_SERVICE_SENDER=https%3A%2F%2Fstoreapptom.github.io%2FStoreApp%2FstoreApp.html&` +
+            `key=7WS4MERHR1Y`;  // Replace with actual key
+        console.log(deeplinkUrl);
+
+        window.location.href = deeplinkUrl;
+    }
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/StoreApp/service-worker.js')
+            .then(registration => {
+                console.log('Service Worker registered with scope:', registration.scope);
+            })
+            .catch(error => {
+                console.error('Service Worker registration failed:', error);
+            });
+    });
+}
+</script>
+
+</body>
+</html>
