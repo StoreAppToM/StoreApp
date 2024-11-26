@@ -33,7 +33,7 @@
         }
     </style>
 </head>
-<body>
+<body onload="handleResponse()">
 
 <div class="container">
     <h1>Payment Integration</h1>
@@ -100,21 +100,16 @@
 
         if (data) {
             responseDisplay.innerText = `Success: ${decodeURIComponent(data)}`;
-            // Décodage des données reçues
-            const decodedData = JSON.parse(decodeURIComponent(data));
 
-            // Vérification si 'paymentSolutionReference' est présent dans les données
-            const paymentSolutionReference = decodedData.paymentSolutionReference;
+            // Simule l'ajout de la référence de paiement à la liste
+            const paymentSolutionReference = "REF123456789"; // Exemple de référence
+            if (!paymentReferences.includes(paymentSolutionReference)) {
+                paymentReferences.push(paymentSolutionReference);
+            }
 
-            if (paymentSolutionReference) {
-                // Ajout de la référence de paiement à la liste si elle n'existe pas déjà
-                if (!paymentReferences.includes(paymentSolutionReference)) {
-                    paymentReferences.push(paymentSolutionReference);
-                }
+            // Met à jour la liste des références de paiement
+            populatePaymentReferences();
 
-                // Mise à jour de la liste des références de paiement
-                populatePaymentReferences();
-            } 
         } else if (error) {
             responseDisplay.innerText = `Error: ${decodeURIComponent(error)}`;
         } else {
@@ -173,11 +168,6 @@
 
         window.location.href = deeplinkUrl;
     }
-
-    // Attendez que le DOM soit prêt avant d'appeler handleResponse
-    document.addEventListener('DOMContentLoaded', function() {
-        handleResponse();
-    });
 </script>
 
 <script>
