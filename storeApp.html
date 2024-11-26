@@ -99,8 +99,10 @@
     const responseDisplay = document.getElementById("responseDisplay");
 
     if (data) {
+
+         responseDisplay.innerText = Success: ${decodeURIComponent(data)};
         // Décodage des données reçues
-        const decodedData = JSON.parse(decodeURIComponent(data));
+        const decodedData = JSON.parse(data);
 
         // Vérification si 'paymentSolutionReference' est présent dans les données
         const paymentSolutionReference = decodedData.paymentSolutionReference;
@@ -114,11 +116,8 @@
             // Mise à jour de la liste des références de paiement
             populatePaymentReferences();
 
-            responseDisplay.innerText = `Success: Payment Solution Reference is ${paymentSolutionReference}`;
-        } else {
-            responseDisplay.innerText = "Error: Payment Solution Reference not found in response.";
-        }
-
+           
+        } 
     } else if (error) {
         responseDisplay.innerText = `Error: ${decodeURIComponent(error)}`;
     } else {
