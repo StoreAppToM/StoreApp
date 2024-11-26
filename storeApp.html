@@ -92,30 +92,39 @@
 
     // Cette fonction simule la récupération de la réponse avec la référence de paiement
     function handleResponse() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const data = urlParams.get('data');
-        const error = urlParams.get('error');
+    const urlParams = new URLSearchParams(window.location.search);
+    const data = urlParams.get('data');
+    const error = urlParams.get('error');
 
-        const responseDisplay = document.getElementById("responseDisplay");
+    const responseDisplay = document.getElementById("responseDisplay");
 
-        if (data) {
-            responseDisplay.innerText = `Success: ${decodeURIComponent(data)}`;
+    if (data) {
+        // Décodage des données reçues
+        const decodedData = JSON.parse(decodeURIComponent(data));
 
-            // Simule l'ajout de la référence de paiement à la liste
-            const paymentSolutionReference = "REF123456789"; // Exemple de référence
+        // Vérification si 'paymentSolutionReference' est présent dans les données
+        const paymentSolutionReference = decodedData.paymentSolutionReference;
+
+        if (paymentSolutionReference) {
+            // Ajout de la référence de paiement à la liste si elle n'existe pas déjà
             if (!paymentReferences.includes(paymentSolutionReference)) {
                 paymentReferences.push(paymentSolutionReference);
             }
 
-            // Met à jour la liste des références de paiement
+            // Mise à jour de la liste des références de paiement
             populatePaymentReferences();
 
-        } else if (error) {
-            responseDisplay.innerText = `Error: ${decodeURIComponent(error)}`;
+            responseDisplay.innerText = `Success: Payment Solution Reference is ${paymentSolutionReference}`;
         } else {
-            responseDisplay.innerText = "No response received.";
+            responseDisplay.innerText = "Error: Payment Solution Reference not found in response.";
         }
+
+    } else if (error) {
+        responseDisplay.innerText = `Error: ${decodeURIComponent(error)}`;
+    } else {
+        responseDisplay.innerText = "No response received.";
     }
+}
 
     function startTransaction() {
         const operationType = document.getElementById("operationType").value;
