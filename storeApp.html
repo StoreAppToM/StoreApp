@@ -33,7 +33,7 @@
         }
     </style>
 </head>
-<body onload="handleResponse()">
+<body>
 
 <div class="container">
     <h1>Payment Integration</h1>
@@ -92,38 +92,35 @@
 
     // Cette fonction simule la récupération de la réponse avec la référence de paiement
     function handleResponse() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const data = urlParams.get('data');
-    const error = urlParams.get('error');
+        const urlParams = new URLSearchParams(window.location.search);
+        const data = urlParams.get('data');
+        const error = urlParams.get('error');
 
-    const responseDisplay = document.getElementById("responseDisplay");
+        const responseDisplay = document.getElementById("responseDisplay");
 
-    if (data) {
+        if (data) {
+            responseDisplay.innerText = `Success: ${decodeURIComponent(data)}`;
+            // Décodage des données reçues
+            const decodedData = JSON.parse(decodeURIComponent(data));
 
-         responseDisplay.innerText = Success: ${decodeURIComponent(data)};
-        // Décodage des données reçues
-        const decodedData = JSON.parse(data);
+            // Vérification si 'paymentSolutionReference' est présent dans les données
+            const paymentSolutionReference = decodedData.paymentSolutionReference;
 
-        // Vérification si 'paymentSolutionReference' est présent dans les données
-        const paymentSolutionReference = decodedData.paymentSolutionReference;
+            if (paymentSolutionReference) {
+                // Ajout de la référence de paiement à la liste si elle n'existe pas déjà
+                if (!paymentReferences.includes(paymentSolutionReference)) {
+                    paymentReferences.push(paymentSolutionReference);
+                }
 
-        if (paymentSolutionReference) {
-            // Ajout de la référence de paiement à la liste si elle n'existe pas déjà
-            if (!paymentReferences.includes(paymentSolutionReference)) {
-                paymentReferences.push(paymentSolutionReference);
-            }
-
-            // Mise à jour de la liste des références de paiement
-            populatePaymentReferences();
-
-           
-        } 
-    } else if (error) {
-        responseDisplay.innerText = `Error: ${decodeURIComponent(error)}`;
-    } else {
-        responseDisplay.innerText = "No response received.";
+                // Mise à jour de la liste des références de paiement
+                populatePaymentReferences();
+            } 
+        } else if (error) {
+            responseDisplay.innerText = `Error: ${decodeURIComponent(error)}`;
+        } else {
+            responseDisplay.innerText = "No response received.";
+        }
     }
-}
 
     function startTransaction() {
         const operationType = document.getElementById("operationType").value;
@@ -176,6 +173,11 @@
 
         window.location.href = deeplinkUrl;
     }
+
+    // Attendez que le DOM soit prêt avant d'appeler handleResponse
+    document.addEventListener('DOMContentLoaded', function() {
+        handleResponse();
+    });
 </script>
 
 <script>
